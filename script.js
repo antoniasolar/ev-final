@@ -75,19 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .filter(p => p.tipo === "Privada")
         .map(p => ({ x: p.acreditacion, y: p.arancel, name: p.programa, uni: p.universidad }));
 
-    // Regresión lineal simple (mínimos cuadrados) sobre el total de programas,
-    // para trazar una línea de tendencia calculada y no dos puntos elegidos a mano.
-    const todos = [...datosEstatal, ...datosPrivada];
-    const n = todos.length;
-    const sumX = todos.reduce((a, p) => a + p.x, 0);
-    const sumY = todos.reduce((a, p) => a + p.y, 0);
-    const sumXY = todos.reduce((a, p) => a + p.x * p.y, 0);
-    const sumX2 = todos.reduce((a, p) => a + p.x * p.x, 0);
-    const pendiente = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-    const intercepto = (sumY - pendiente * sumX) / n;
-    const xMin = Math.min(...todos.map(p => p.x));
-    const xMax = Math.max(...todos.map(p => p.x));
-
     new Chart(document.getElementById("dispersion"), {
         type: "scatter",
         data: {
@@ -110,8 +97,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     label: "Tendencia",
                     type: "line",
                     data: [
-                        { x: xMin, y: pendiente * xMin + intercepto },
-                        { x: xMax, y: pendiente * xMax + intercepto },
+                        { x: 3, y: 4030000 },
+                        { x: 7, y: 8080000 },
                     ],
                     borderColor: "rgba(102,102,102,0.25)",
                     borderWidth: 1.5,
@@ -310,26 +297,19 @@ document.addEventListener("DOMContentLoaded", () => {
             : `${total} de ${programas.length} programas`;
     }
 
-    function normalizar(texto) {
-        return texto
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, ""); // quita los acentos
-    }
-
     renderTabla(programas);
 
     buscador.addEventListener("input", () => {
-        const q = normalizar(buscador.value.trim());
+        const q = buscador.value.toLowerCase().trim();
         if (!q) {
             renderTabla(programas);
             return;
         }
         const filtrados = programas.filter(p =>
-            normalizar(p.programa).includes(q) ||
-            normalizar(p.universidad).includes(q) ||
-            normalizar(p.region).includes(q) ||
-            normalizar(p.tipo).includes(q)
+            p.programa.toLowerCase().includes(q) ||
+            p.universidad.toLowerCase().includes(q) ||
+            p.region.toLowerCase().includes(q) ||
+            p.tipo.toLowerCase().includes(q)
         );
         renderTabla(filtrados);
     });
